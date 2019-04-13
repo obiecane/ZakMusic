@@ -12,13 +12,17 @@ import com.zak.ui.LYTMusic as lyt_music
 from com.zak.utils.Converter import Converter
 from com.zak.utils.MusicUtils import MusicUtils
 
-filename = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+log_file_name = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+
+# 新增 fh，修改 basicConfig
+fh = logging.FileHandler(encoding='utf-8', mode='a', filename="./log/" + log_file_name + ".log")
+# logging.basicConfig(handlers=[fh], format='[%(asctime)s %(levelname)s]<%(process)d> %(message)s',
+#                     datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
+
 logging.basicConfig(level=logging.DEBUG,
+                    handlers=[fh],
                     format='%(asctime)s \tFile \"%(filename)s\"[line:%(lineno)d] %(levelname)s %(message)s',
-                    # datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename="./log/" + filename + ".log",
-                    filemode='a')
-logging.debug("test")
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def test():
@@ -53,4 +57,5 @@ def test3():
 
 
 if __name__ == "__main__":
+    logging.info("中文测试")
     test3()
