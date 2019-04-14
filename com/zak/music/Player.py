@@ -37,13 +37,15 @@ class Player(QObject):
             self._do_play()
 
     def _do_play(self):
-        name = threading.current_thread().name
-        print(name)
-        self.signal_start_play.emit(self._curr_music)
-        print("发送signal_start_play信号")
-        pygame.mixer.music.load(self._curr_music.get_uri())
-        pygame.mixer.music.play()
-        self._is_pause = False
+        try:
+            pygame.mixer.music.load(self._curr_music.get_uri())
+            pygame.mixer.music.play()
+            self.signal_start_play.emit(self._curr_music)
+            self._is_pause = False
+        except Exception as e:
+            # TODO 可能文件损坏 或者因为没有版权
+            # TODO 发送信号cant play
+            pass
 
     def stop(self):
         pygame.mixer.music.stop()
@@ -65,6 +67,9 @@ class Player(QObject):
         print("unpause")
         pygame.mixer.music.unpause()
 
+    def set_volume(self, v):
+        pygame.mixer.music.set_volume(v / 99)
+
     def smart_pause(self):
         try:
             busy = pygame.mixer.music.get_busy()
@@ -78,6 +83,8 @@ class Player(QObject):
         except Exception as e:
             pass
 
-    def test_signal(self):
+    def is_played(self):
+        return pygame.mixer.music.get_busy() and not self._is_pause
 
-        self._do_play()
+    def get_pos(self):
+        return pygame.mixer.music.get_pos()
