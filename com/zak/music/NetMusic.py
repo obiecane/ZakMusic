@@ -1,3 +1,4 @@
+import os
 import threading
 
 from com.zak.music.LocalMusic import LocalMusic
@@ -34,13 +35,22 @@ class NetMusic(Music):
         ReqUtils.download(self._uri, self.__get_local_music_path())
         ReqUtils.download(self._lrc, self.__get_local_lrc_path())
         self.__pic_path = ReqUtils.download(self._pic, self.__get_local_pic_path())
-        # TODO　下载完成后判断大小, 107kb则是无版权的
-
+        # 下载完成后判断大小, 107kb则是无版权的
+        size = os.path.getsize(self.__get_local_music_path())
+        if size < 500:
+            # 转到qq去下载
+            qq_search_list = ReqUtils.tencent_search_music("%s %s" % (self._name, self._singer), True)
+            if len(qq_search_list) > 0:
+                data = qq_search_list[0]
+                self._uri = data["url"]
+                self._pic = data["pic"]
+                self._lrc = data["lrc"]
+                ReqUtils.download(self._uri, self.__get_local_music_path(), True)
+                ReqUtils.download(self._lrc, self.__get_local_lrc_path(), True)
+                self.__pic_path = ReqUtils.download(self._pic, self.__get_local_pic_path(), True)
         # 通知外部已下载完毕, 然后外部就开始播放
         self.__create_local_music()
         self.signal_load_over.emit()
-        # player = Player()
-        # player.play(self)
 
     def get_uri(self):
         # 开启子线程, 下载
