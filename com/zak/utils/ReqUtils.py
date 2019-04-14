@@ -1,3 +1,4 @@
+import imghdr
 import json
 import logging
 import os
@@ -28,21 +29,20 @@ class ReqUtils:
 
     @staticmethod
     def search_music(music_tag):
+        logging.debug("搜索 %s" % music_tag)
         return ReqUtils._search_music_by_name(music_tag)
-        pass
 
     @staticmethod
     def _search_music_by_name(music_name):
         url = ReqUtils._NETEASE_BASE_SEARCH + "&s=" + music_name
-        print(url)
+        logging.debug("搜索 url:%s" % url)
         get_result = requests.get(url)
         json_result = json.loads(get_result.content.decode())
-        print(json_result)
+        logging.debug("搜索结果: %s" % json_result)
         if json_result["code"] == 200:
             return json_result["data"]
         else:
             return []
-        pass
 
     @staticmethod
     def download(url, filename, override=False):
@@ -57,3 +57,10 @@ class ReqUtils:
             with open(filename, "wb") as tmp:
                 tmp.write(result.content)
             logging.debug("下载完成[%s]" % filename)
+        # 自动判断图片的类型
+        img_type = imghdr.what(filename)
+        if img_type is not None:
+            new_filename = filename[:-4] + "." + img_type
+            os.rename(filename, new_filename)
+            filename = new_filename
+        return filename
