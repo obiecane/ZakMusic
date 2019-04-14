@@ -1,5 +1,13 @@
+from PyQt5.QtCore import pyqtSignal, QObject
+
+
 # 定义接口
-class Music:
+class Music(QObject):
+    signal_loading = pyqtSignal()
+    signal_load_over = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
 
     def get_uri(self):
         pass
@@ -42,3 +50,6 @@ class Music:
 
     def set_uri(self, uri):
         pass
+
+    def __str__(self):
+        return "%s %s %s %d" % (self.get_id(), self.get_name(), self.get_singer(), self.get_length())

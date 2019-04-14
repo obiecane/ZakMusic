@@ -1,17 +1,14 @@
-import logging
-import os
 import threading
-
-import requests
 
 from com.zak.music.LocalMusic import LocalMusic
 from com.zak.music.Music import Music
-from com.zak.music.Player import Player
+from com.zak.utils.ReqUtils import ReqUtils
 
 
 # 网络音乐资源, 是本地音乐资源的代理类
 class NetMusic(Music):
     def __init__(self):
+        super().__init__()
         # id
         self._id = None
         # 演唱者
@@ -28,19 +25,22 @@ class NetMusic(Music):
         self._length = None
         # 本地音乐文件
         self._local_music = None
+        self.__pic_path = None
         # 标志
         self.__retrieving = False
 
     def __download_music(self):
-        logging.info("开始下载[" + self.__get_local_music_path() + "]")
-        result = requests.get(self._uri)
-        with open(self.__get_local_music_path(), "wb") as tmp:
-            tmp.write(result.content)
-        logging.info("下载完毕[" + self.__get_local_music_path() + "]")
+        self.signal_loading.emit()
+        ReqUtils.download(self._uri, self.__get_local_music_path())
+        ReqUtils.download(self._lrc, self.__get_local_lrc_path())
+        self.__pic_path = ReqUtils.download(self._pic, self.__get_local_pic_path())
+        # TODO　下载完成后判断大小, 107kb则是无版权的
+
         # 通知外部已下载完毕, 然后外部就开始播放
         self.__create_local_music()
-        player = Player()
-        player.play(self)
+        self.signal_load_over.emit()
+        # player = Player()
+        # player.play(self)
 
     def get_uri(self):
         # 开启子线程, 下载
@@ -52,43 +52,31 @@ class NetMusic(Music):
         return self._local_music.get_uri()
 
     def get_length(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._length
         return self._local_music.get_length()
 
     def get_id(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._id
         return self._local_music.get_id()
 
     def get_name(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._name
         return self._local_music.get_name()
 
     def get_singer(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._singer
         return self._local_music.get_singer()
 
     def get_lrc(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._lrc
         return self._local_music.get_lrc()
 
     def get_pic(self):
-        if not isinstance(self._local_music, Music):
-            return
         if self._local_music is None:
             return self._pic
         return self._local_music.get_pic()
@@ -121,15 +109,12 @@ class NetMusic(Music):
             self._local_music.set_name(self._name)
             self._local_music.set_uri(self.__get_local_music_path())
             self._local_music.set_lrc(self.__get_local_lrc_path())
-            self._local_music.set_pic(self.__get_local_pic_path())
+            self._local_music.set_pic(self.__pic_path)
             self._local_music.set_singer(self._singer)
             self._local_music.set_length(self._length)
 
     def __get_local_music_path(self):
-        dir_name = "./music/" + self._singer
-        if not os.path.isdir(dir_name):
-            os.makedirs(dir_name)
-        return dir_name + "/" + self._name + ".mp3"
+        return "./music/" + self._singer + "/" + self._name + ".mp3"
 
     def __get_local_pic_path(self):
         return "./pic/" + self._singer + "/" + self._name + ".jpg"

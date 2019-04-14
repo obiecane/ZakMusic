@@ -4,6 +4,7 @@ from com.zak.utils.MusicUtils import MusicUtils
 
 class LocalMusic(Music):
     def __init__(self):
+        super().__init__()
         # id
         self._id = None
         # 演唱者
