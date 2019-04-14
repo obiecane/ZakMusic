@@ -2,6 +2,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QTimer
 
 from com.zak.music.Player import Player
 from com.zak.utils.Converter import Converter
@@ -19,6 +20,9 @@ class Ui_MainWindow(QObject):
     def __init__(self):
         super().__init__()
         self._player = Player()
+        self._music_timer = QTimer()
+        self._music_timer.timeout.connect(self.__refresh_music_progress)  # 计时结束调用operate()方法
+        self._music_timer.start(1000)  # 设置计时间隔并启动
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -148,6 +152,7 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
+        self.volume_slider.valueChanged.connect(self.refresh_volume)
         self.input_search.returnPressed.connect(self.search_test)
         self.listWidget.doubleClicked.connect(self.db_click)
         self._player.signal_start_play.connect(self.slot_music_start_play)
@@ -254,12 +259,24 @@ class Ui_MainWindow(QObject):
         q_pixmap = QtGui.QPixmap(pic)
         q_pixmap = q_pixmap.scaled(self.pic_label.size(), QtCore.Qt.KeepAspectRatio)
         self.pic_label.setPixmap(q_pixmap)
+        # 设置总时长
+        self.music_progress.setMaximum(music.get_length() * 1000)
         pass
 
     def play_pause(self):
-        print("click")
         self._player.smart_pause()
 
+    def refresh_volume(self):
+        value = self.volume_slider.value()
+        self._player.set_volume(value)
+
+    # 刷新进度条
+    def __refresh_music_progress(self):
+        pos = self._player.get_pos()
+        self.curr_music_time.setText(TimeUtils.second2minute(pos / 1000))
+        self.music_progress.setValue(pos)
+
+    # 绘制默认图片
     def __paint_default_pic(self):
         q_pixmap = QtGui.QPixmap("./res/default.jpg").scaled(self.pic_label.size(), QtCore.Qt.KeepAspectRatio)
         self.pic_label.setPixmap(q_pixmap)
