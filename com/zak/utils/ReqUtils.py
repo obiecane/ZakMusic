@@ -1,4 +1,6 @@
 import json
+import logging
+import os
 
 import requests
 
@@ -26,7 +28,7 @@ class ReqUtils:
 
     @staticmethod
     def search_music(music_tag):
-        ReqUtils._search_music_by_name(music_tag)
+        return ReqUtils._search_music_by_name(music_tag)
         pass
 
     @staticmethod
@@ -34,6 +36,24 @@ class ReqUtils:
         url = ReqUtils._NETEASE_BASE_SEARCH + "&s=" + music_name
         print(url)
         get_result = requests.get(url)
-        loads = json.loads(get_result.content.decode())
-        print(loads)
+        json_result = json.loads(get_result.content.decode())
+        print(json_result)
+        if json_result["code"] == 200:
+            return json_result["data"]
+        else:
+            return []
         pass
+
+    @staticmethod
+    def download(url, filename, override=False):
+        if not isinstance(filename, str):
+            return
+        dir_name = os.path.dirname(filename)
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        if override or not os.path.exists(filename):
+            logging.debug("开始下载[%s] [url:%s]" % (filename, url))
+            result = requests.get(url)
+            with open(filename, "wb") as tmp:
+                tmp.write(result.content)
+            logging.debug("下载完成[%s]" % filename)
