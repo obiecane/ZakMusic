@@ -65,3 +65,105 @@ def test4():
 
 if __name__ == "__main__":
     test3()
+
+# QSlider::handle:horizontal { /*水平滑块的手柄*/
+#         image: url(:/image/sliderHandle.png);
+#  }
+#
+# QSlider::sub-page:horizontal { /*水平滑块手柄以前的部分*/
+#         border-image: url(:/image/slider.png);/*边框图片*/
+#  }
+
+# QSlider::groove: horizontal
+# {
+#     border: 1px solid  # 4A708B;
+#     background:  # C0C0C0;
+#         height: 5
+# px;
+# border - radius: 1
+# px;
+# padding - left: -1
+# px;
+# padding - right: -1
+# px;
+# }
+#
+# QSlider::sub - page: horizontal
+# {
+#     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+# stop: 0  # B1B1B1, stop:1 #c4c4c4);
+# background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+# stop: 0  # 5DCCFF, stop: 1 #1874CD);
+# border: 1
+# px
+# solid  # 4A708B;
+# height: 10
+# px;
+# border - radius: 2
+# px;
+# }
+#
+# QSlider::add - page: horizontal
+# {
+#     background:  # 575757;
+#         border: 0
+# px
+# solid  # 777;
+# height: 10
+# px;
+# border - radius: 2
+# px;
+# }
+#
+# QSlider::handle: horizontal
+# {
+#     background: qradialgradient(spread: pad, cx: 0.5, cy: 0.5, radius: 0.5, fx: 0.5, fy: 0.5,
+# stop: 0.6  # 45ADED, stop:0.778409 rgba(255, 255, 255, 255));
+#
+# width: 11
+# px;
+# margin - top: -3
+# px;
+# margin - bottom: -3
+# px;
+# border - radius: 5
+# px;
+# }
+#
+# QSlider::handle: horizontal:hover
+# {
+#     background: qradialgradient(spread: pad, cx: 0.5, cy: 0.5, radius: 0.5, fx: 0.5, fy: 0.5, stop: 0.6  # 2A8BDA,
+# stop: 0.778409
+# rgba(255, 255, 255, 255));
+#
+# width: 11
+# px;
+# margin - top: -3
+# px;
+# margin - bottom: -3
+# px;
+# border - radius: 5
+# px;
+# }
+#
+# QSlider::sub - page: horizontal:disabled
+# {
+#     background:  # 00009C;
+#         border - color:  # 999;
+# }
+#
+# QSlider::add - page: horizontal:disabled
+# {
+#     background:  # eee;
+#         border - color:  # 999;
+# }
+#
+# QSlider::handle: horizontal:disabled
+# {
+#     background:  # eee;
+#         border: 1
+# px
+# solid  # aaa;
+# border - radius: 4
+# px;
+# }
