@@ -1,3 +1,4 @@
+import imghdr
 import json
 import logging
 import sys
@@ -56,6 +57,11 @@ def test3():
     pass
 
 
+def test4():
+    imghdr.test()
+    imgType = imghdr.what("./music/Chan/分分钟需要你（Cover：林子祥）.mp3")
+    print(imgType)
+
+
 if __name__ == "__main__":
-    logging.info("中文测试")
     test3()
