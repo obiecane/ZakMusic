@@ -1,5 +1,6 @@
 import logging
 
+from com.zak.music.LocalMusic import LocalMusic
 from com.zak.music.NetMusic import NetMusic
 
 
@@ -19,3 +20,16 @@ class Converter:
         music.set_uri(json['url'])
         return music
         pass
+
+    # 数据库中查出的数据转LocalMusic
+    @staticmethod
+    def local_data_local_music(data):
+        m = LocalMusic()
+        m.set_id(data[1])
+        m.set_name(data[2])
+        m.set_singer(data[3])
+        m.set_length(data[4])
+        m.set_pic(data[5])
+        m.set_lrc(data[7])
+        m.set_uri(data[9])
+        return m
