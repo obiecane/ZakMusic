@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QTimer
 
+from com.zak.dao.MusicDao import MusicDao
 from com.zak.music.Player import Player
 from com.zak.utils.Converter import Converter
 # Form implementation generated from reading ui file 'LYTMusic.ui'
@@ -239,19 +240,19 @@ class Ui_MainWindow(QObject):
             self.test_list_item(i, Converter.itooi_music(v))
 
     def db_click(self, index_):
-        self._player.pause()
+        self._player.stop()
         self.__paint_default_pic()
         item = self.listWidget.item(index_.row())
         widget = self.listWidget.itemWidget(item)
         music = widget.zak_music
+        music.signal_load_over.connect(self.__music_download_over)
         # child = widget.findChild(QtWidgets.QLabel, "song_name_label")
         # 开始播放
         # music.get_uri()
         self.full_music_time.setText(TimeUtils.second2minute(music.get_length()))
         self.song_label.setText(music.get_name())
-        self.singer_label.setText(music.get_singer())
+        self.singer_label.setText(music.get_singer().replace("-", "/"))
         self._player.play(music)
-        # self._player.test_signal()
 
     def slot_music_start_play(self, music):
         # 刷新图片
@@ -280,3 +281,7 @@ class Ui_MainWindow(QObject):
     def __paint_default_pic(self):
         q_pixmap = QtGui.QPixmap("./res/default.jpg").scaled(self.pic_label.size(), QtCore.Qt.KeepAspectRatio)
         self.pic_label.setPixmap(q_pixmap)
+
+    def __music_download_over(self, music):
+        MusicDao.save(music)
+        pass
