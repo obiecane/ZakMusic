@@ -1,3 +1,4 @@
+import logging
 import threading
 
 import pygame
@@ -38,17 +39,24 @@ class Player(QObject):
 
     def _do_play(self):
         try:
-            pygame.mixer.music.load(self._curr_music.get_uri())
+            uri = self._curr_music.get_uri()
+            pygame.mixer.music.load(uri)
             pygame.mixer.music.play()
             self.signal_start_play.emit(self._curr_music)
             self._is_pause = False
         except Exception as e:
             # TODO 可能文件损坏 或者因为没有版权
             # TODO 发送信号cant play
+            logging.info(e)
             pass
 
     def stop(self):
-        pygame.mixer.music.stop()
+        try:
+            pygame.mixer.music.stop()
+        except Exception as e:
+            logging.info(e)
+            print(e)
+
 
     def slot_loading(self):
         print("signal_loading 信号接收")
