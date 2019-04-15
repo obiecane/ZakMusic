@@ -21,7 +21,7 @@ class MusicDao:
 
     @staticmethod
     def save(net_music: NetMusic):
-        by_name = MusicDao.get_by_name(net_music.get_name())
+        by_name = MusicDao.get_by_music_id(net_music.get_id())
         if by_name is not None:
             return
 
@@ -65,10 +65,25 @@ class MusicDao:
 
     @staticmethod
     def get_by_name(name, cook=True):
-        cursor = DBUtils.get_cursor()
-        cursor.execute("select * from music where name = ?", (name,))
-        value = cursor.fetchone()
-        cursor.close()
+        value = DBUtils.get_by_single("music", "name", name)
+        # 转换成music对象
+        if cook and value is not None:
+            m = Converter.local_data_local_music(value)
+            return m
+        return value
+
+    @staticmethod
+    def get_by_music_id(music_id: str, cook=True):
+        value = DBUtils.get_by_single("music", "music_id", music_id)
+        # 转换成music对象
+        if cook and value is not None:
+            m = Converter.local_data_local_music(value)
+            return m
+        return value
+
+    @staticmethod
+    def get_by_id(id_: int, cook=True):
+        value = DBUtils.get_by_single("music", "id", id_)
         # 转换成music对象
         if cook and value is not None:
             m = Converter.local_data_local_music(value)
