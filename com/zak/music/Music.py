@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 # 定义接口
 class Music(QObject):
     signal_loading = pyqtSignal()
-    signal_load_over = pyqtSignal()
+    signal_load_over = pyqtSignal(QObject)
 
     def __init__(self):
         super().__init__()
