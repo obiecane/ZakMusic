@@ -29,7 +29,7 @@ class Converter:
         m.set_name(data[2])
         m.set_singer(data[3])
         m.set_length(data[4])
-        m.set_pic(data[5])
-        m.set_lrc(data[7])
-        m.set_uri(data[9])
+        m.set_uri(data[5])
+        m.set_pic(data[7])
+        m.set_lrc(data[9])
         return m
