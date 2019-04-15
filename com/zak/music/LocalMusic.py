@@ -1,5 +1,4 @@
 from com.zak.music.Music import Music
-from com.zak.utils.MusicUtils import MusicUtils
 
 
 class LocalMusic(Music):
@@ -24,8 +23,8 @@ class LocalMusic(Music):
         return self._uri
 
     def get_length(self):
-        if self._uri is not None:
-            return MusicUtils.get_length(self._uri)
+        # if self._uri is not None:
+        #     return MusicUtils.get_length(self._uri)
         return self._length
 
     def get_id(self):
