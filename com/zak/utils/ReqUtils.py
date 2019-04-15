@@ -46,22 +46,17 @@ class ReqUtils:
             else:
                 str_n = None
 
-            if i < len_n:
+            if i < len_t:
                 str_t = "name:%s|singer:%s" % (tencent_result[i]["name"], tencent_result[i]["singer"])
             else:
                 str_t = None
 
-            if str_n is None:
+            if str_n is not None and str_n not in tmp:
+                new_result.append(netease_result[i])
+                tmp.add(str_n)
+            if str_t is not None and str_t not in tmp:
                 new_result.append(tencent_result[i])
                 tmp.add(str_t)
-            elif str_t is None:
-                new_result.append(netease_result[i])
-                tmp.add(str_n)
-            else:
-                new_result.append(netease_result[i])
-                tmp.add(str_n)
-                if str_t not in tmp:
-                    new_result.append(tencent_result[i])
 
         # tmp_ = set()
         # new_result_ = list()
