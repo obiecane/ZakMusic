@@ -84,3 +84,11 @@ class DBUtils:
         cursor.close()
         conn.commit()
         return fetchall
+
+    @staticmethod
+    def get_by_single(table: str, column: str, value):
+        cursor = DBUtils.get_cursor()
+        cursor.execute("select * from %s where %s = ?" % (table, column), (value,))
+        value = cursor.fetchone()
+        cursor.close()
+        return value
