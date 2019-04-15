@@ -48,11 +48,22 @@ class NetMusic(Music):
                 ReqUtils.download(self._uri, self.__get_local_music_path(), True)
                 ReqUtils.download(self._lrc, self.__get_local_lrc_path(), True)
                 self.__pic_path = ReqUtils.download(self._pic, self.__get_local_pic_path(), True)
+
         # 通知外部已下载完毕, 然后外部就开始播放
         self.__create_local_music()
-        self.signal_load_over.emit()
+        self.signal_load_over.emit(self)
 
-    def get_uri(self):
+    def get_source(self):
+        if "netease" in self._uri:
+            return 1
+        elif "tencent" in self._uri:
+            return 2
+        else:
+            return 0
+
+    def get_uri(self, own=False):
+        if own:
+            return self._uri
         # 开启子线程, 下载
         if not self.__retrieving:
             self.__retrieving = True
@@ -81,12 +92,16 @@ class NetMusic(Music):
             return self._singer
         return self._local_music.get_singer()
 
-    def get_lrc(self):
+    def get_lrc(self, own=False):
+        if own:
+            return self._lrc
         if self._local_music is None:
             return self._lrc
         return self._local_music.get_lrc()
 
-    def get_pic(self):
+    def get_pic(self, own=False):
+        if own:
+            return self._pic
         if self._local_music is None:
             return self._pic
         return self._local_music.get_pic()
