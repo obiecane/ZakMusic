@@ -1,6 +1,7 @@
 import imghdr
 import json
 import logging
+import sqlite3
 import sys
 import time
 
@@ -11,6 +12,7 @@ from mutagen.mp3 import MP3
 
 import com.zak.ui.LYTMusic as lyt_music
 from com.zak.utils.Converter import Converter
+from com.zak.utils.DBUtils import DBUtils
 from com.zak.utils.MusicUtils import MusicUtils
 
 log_file_name = time.strftime('%Y-%m-%d', time.localtime(time.time()))
@@ -24,11 +26,6 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[fh],
                     format='%(asctime)s \tFile \"%(filename)s\"[line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
-
-
-def test():
-    m = MusicUtils()
-    m.play("F:\CloudMusic\李宗盛\李宗盛 - 山丘 (Live).mp3")
 
 
 def test1():
@@ -63,8 +60,38 @@ def test4():
     print(imgType)
 
 
+def test_db():
+    # 打开连接
+    conn = sqlite3.connect("lyt_music.db")
+    sql = ""
+    cursor = conn.cursor()
+    try:
+        cursor.execute(sql)
+    except Exception as e:
+        pass
+
+    sql = "insert into login (id, name, password) values ('1', 'love', '520520')"
+    cursor.execute(sql)
+    sql = "insert into login (id, name, password) values ('2', 'hate', '000000')"
+    cursor.execute(sql)
+
+    sql = "select * from login"
+    cursor.execute(sql)
+
+    values = cursor.fetchall()
+    for v in values:
+        print(v[1])
+    print(values)
+
+
+def __create_database():
+    sql = "create table login (id varchar(20) primary key, name varchar(30), password varchar(30))"
+
+
 if __name__ == "__main__":
+    DBUtils.init_tables()
     test3()
+    # test_db()
 
 # QSlider::handle:horizontal { /*水平滑块的手柄*/
 #         image: url(:/image/sliderHandle.png);
