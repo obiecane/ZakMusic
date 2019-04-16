@@ -89,9 +89,13 @@ class Player(QObject):
             pass
 
     def _do_load(self):
-        uri = self._curr_music.get_uri()
-        pygame.mixer.music.load(uri)
-        self.__status = Player.STATUS_READY
+        # 歌曲被从硬盘删除将抛出异常
+        try:
+            uri = self._curr_music.get_uri()
+            pygame.mixer.music.load(uri)
+            self.__status = Player.STATUS_READY
+        except Exception as e:
+            logging.info(e)
 
     def stop(self):
         try:
@@ -99,7 +103,6 @@ class Player(QObject):
             self.__status = Player.STATUS_OVER
         except Exception as e:
             logging.info(e)
-            print(e)
 
     def slot_loading(self):
         self.signal_loading.emit()
@@ -177,7 +180,7 @@ class Player(QObject):
             self._do_load()
             self._do_play()
             self.signal_music_over.emit(over_music)
-            print(over_music.get_name() + "   播放完毕")
+            logging.debug("%s   播放完毕" % over_music.get_name())
 
     def add_music_list(self, music_or_list):
         if isinstance(music_or_list, Music):
@@ -188,6 +191,7 @@ class Player(QObject):
                 if isinstance(m, Music) and m not in self.__music_list:
                     self.__music_list.append(m)
 
+    # TODO 网络搜索中的歌双击后下载成功就同步到localListWidget中
     # TODO 增加歌词显示
     # TODO 增加异步加载网络数据
     # TODO 完善加载中动画
