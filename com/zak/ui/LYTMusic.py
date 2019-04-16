@@ -4,8 +4,10 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QTimer
 
 from com.zak.dao.MusicDao import MusicDao
+from com.zak.dao.SettingDao import SettingDao
 from com.zak.music.Music import Music
 from com.zak.music.Player import Player
+from com.zak.ui.MyQSlider import MyQSlider
 from com.zak.utils.Converter import Converter
 # Form implementation generated from reading ui file 'LYTMusic.ui'
 #
@@ -17,15 +19,42 @@ from com.zak.utils.TimeUtils import TimeUtils
 
 
 class Ui_MainWindow(QObject):
+    __QSlider_Qss = "  \
+             QSlider::add-page:Horizontal\
+             {     \
+                background-color: rgb(87, 97, 106);\
+                height:4px;\
+             }\
+             QSlider::sub-page:Horizontal \
+            {\
+                background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(231,80,229, 255), stop:1 rgba(7,208,255, 255));\
+                height:4px;\
+             }\
+            QSlider::groove:Horizontal \
+            {\
+                background:transparent;\
+                height:6px;\
+            }\
+            QSlider::handle:Horizontal \
+            {\
+                height: 0px;\
+                width:12px;\
+                border-image: url(./res/ic_slider_thumb.png);\
+                margin: -3 0px; \
+            }\
+            "
+
+    __QListWidget_Qss = "QListWidget{border:0px solid black;}"
 
     def __init__(self):
         super().__init__()
         self._player = Player()
         self._music_timer = QTimer()
         self._music_timer.timeout.connect(self.__refresh_music_progress)  # 计时结束调用operate()方法
-        self._music_timer.start(1000)  # 设置计时间隔并启动
+        self._music_timer.start(800)  # 设置计时间隔并启动
 
     def setupUi(self, MainWindow):
+        MainWindow.player = self._player
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(380, 800)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -52,7 +81,7 @@ class Ui_MainWindow(QObject):
         self.volume_label = QtWidgets.QLabel(self.centralwidget)
         self.volume_label.setObjectName("volume_label")
         self.horizontalLayout_4.addWidget(self.volume_label)
-        self.volume_slider = QtWidgets.QSlider(self.centralwidget)
+        self.volume_slider = MyQSlider(self.centralwidget)
         self.volume_slider.setTracking(True)
         self.volume_slider.setOrientation(QtCore.Qt.Horizontal)
         self.volume_slider.setInvertedControls(False)
@@ -86,6 +115,7 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.local_list_widget = QtWidgets.QListWidget(self.page_3)
+        self.local_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
         self.local_list_widget.setObjectName("local_list_widget")
         self.verticalLayout_6.addWidget(self.local_list_widget)
         self.stackedWidget_2.addWidget(self.page_3)
@@ -107,6 +137,7 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.net_list_widget = QtWidgets.QListWidget(self.page_5)
+        self.net_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
         self.net_list_widget.setObjectName("net_list_widget")
         self.verticalLayout_7.addWidget(self.net_list_widget)
         self.stackedWidget_3.addWidget(self.page_5)
@@ -165,7 +196,7 @@ class Ui_MainWindow(QObject):
         self.curr_music_time = QtWidgets.QLabel(self.centralwidget)
         self.curr_music_time.setObjectName("curr_music_time")
         self.horizontalLayout_3.addWidget(self.curr_music_time)
-        self.music_progress = QtWidgets.QSlider(self.centralwidget)
+        self.music_progress = MyQSlider(self.centralwidget)
         self.music_progress.setOrientation(QtCore.Qt.Horizontal)
         self.music_progress.setObjectName("music_progress")
         self.horizontalLayout_3.addWidget(self.music_progress)
@@ -197,12 +228,18 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
+        self.volume_slider.hitSliderClicked.connect(self.refresh_volume)
+        self.volume_slider.setStyleSheet(Ui_MainWindow.__QSlider_Qss)
+        self.music_progress.setStyleSheet(Ui_MainWindow.__QSlider_Qss)
+        # self.volume_slider.setStyleSheet("QSlider::sub-page: horizontal{ background:rgb(255, 85, 127)}")
         self.volume_slider.valueChanged.connect(self.refresh_volume)
-        self.input_search.returnPressed.connect(self.search_test)
+        self.input_search.returnPressed.connect(self.search)
         self.net_list_widget.doubleClicked.connect(self.net_list_widget_double_click)
         self.local_list_widget.doubleClicked.connect(self.local_list_widget_double_click)
         self._player.signal_start_play.connect(self.slot_music_start_play)
         self.mc_play_pause.clicked.connect(self.play_pause)
+        self.music_progress.hitSliderClicked.connect(self.__music_control)
+        self.music_progress.sliderMoved.connect(self.__music_control)
 
         self.__paint_default_pic()
 
@@ -211,6 +248,7 @@ class Ui_MainWindow(QObject):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.__init_local_list_widget()
+        self.__init_setting()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -227,8 +265,15 @@ class Ui_MainWindow(QObject):
         self.mc_play_pause.setText(_translate("MainWindow", "播放"))
         self.mc_next.setText(_translate("MainWindow", "下一曲"))
 
+    def search(self):
+        current_index = self.tabWidget.currentIndex()
+        if current_index == 0:
+            # TODO 本地搜索
+            pass
+        elif current_index == 1:
+            self.__do_net_search()
 
-    def search_test(self):
+    def __do_net_search(self):
         self.net_list_widget.clear()
         title = self.input_search.text().title()
         # "我喜欢上你内心时的活动"
@@ -243,9 +288,7 @@ class Ui_MainWindow(QObject):
         widget = self.net_list_widget.itemWidget(item)
         music = widget.zak_music
         music.signal_load_over.connect(self.__music_download_over)
-        # child = widget.findChild(QtWidgets.QLabel, "song_name_label")
-        # 开始播放
-        # music.get_uri()
+        self.curr_music_time.setText(TimeUtils.second2minute(0))
         self.full_music_time.setText(TimeUtils.second2minute(music.get_length()))
         self.song_label.setText(music.get_name())
         self.singer_label.setText(music.get_singer().replace("-", "/"))
@@ -263,14 +306,7 @@ class Ui_MainWindow(QObject):
         pass
 
     def slot_music_start_play(self, music):
-        # 刷新图片
-        pic = music.get_pic()
-        q_pixmap = QtGui.QPixmap(pic)
-        q_pixmap = q_pixmap.scaled(self.pic_label.size(), QtCore.Qt.KeepAspectRatio)
-        self.pic_label.setPixmap(q_pixmap)
-        # 设置总时长
-        self.music_progress.setMaximum(music.get_length() * 1000)
-        pass
+        self.__show_music(music)
 
     def play_pause(self):
         self._player.smart_pause()
@@ -281,6 +317,8 @@ class Ui_MainWindow(QObject):
 
     # 刷新进度条
     def __refresh_music_progress(self):
+        if not self._player.is_play():
+            return
         pos = self._player.get_pos()
         self.curr_music_time.setText(TimeUtils.second2minute(pos / 1000))
         self.music_progress.setValue(pos)
@@ -295,9 +333,46 @@ class Ui_MainWindow(QObject):
         pass
 
     def __init_local_list_widget(self):
-        all = MusicDao.get_all()
-        for i, v in enumerate(all, 1):
+        all_ = MusicDao.get_all()
+        for i, v in enumerate(all_, 1):
             Ui_MainWindow.__gen_list_item(self.local_list_widget, i, v)
+        self._player.add_music_list(all_)
+
+    def __init_setting(self):
+        volume = SettingDao.get_volume()
+        self._player.set_volume(volume)
+        self.volume_slider.setValue(volume)
+        last_id = SettingDao.get_last_music()
+        pos = SettingDao.get_last_pos()
+        by_id = MusicDao.get_by_music_id(last_id)
+        if by_id is None:
+            by_id = MusicDao.get_by_id(1)
+            pos = 0
+        if by_id is None:
+            return
+        self._player.load(by_id)
+        self._player.set_pos(pos)
+        self.__show_music(by_id)
+        self.music_progress.setValue(pos)
+        self.curr_music_time.setText(TimeUtils.second2minute(pos / 1000))
+
+    def __show_music(self, music: Music):
+        pic = music.get_pic()
+        q_pixmap = QtGui.QPixmap(pic)
+        q_pixmap = q_pixmap.scaled(self.pic_label.size(), QtCore.Qt.KeepAspectRatio)
+        self.pic_label.setPixmap(q_pixmap)
+        self.full_music_time.setText(TimeUtils.second2minute(music.get_length()))
+        self.song_label.setText(music.get_name())
+        self.singer_label.setText(music.get_singer().replace("-", "/"))
+        self.music_progress.setMaximum(music.get_length() * 1000)
+
+    # 快进，快退
+    def __music_control(self):
+        value = self.music_progress.value()
+        print(value)
+        self._player.set_pos(value)
+        self.curr_music_time.setText(TimeUtils.second2minute(value / 1000))
+        pass
 
     @staticmethod
     def __gen_list_item(list_widget: QtWidgets.QListWidget, index: int, music: Music):
