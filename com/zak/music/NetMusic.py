@@ -3,6 +3,7 @@ import threading
 
 from com.zak.music.LocalMusic import LocalMusic
 from com.zak.music.Music import Music
+from com.zak.utils.MiscUtils import MiscUtils
 from com.zak.utils.ReqUtils import ReqUtils
 
 
@@ -140,10 +141,10 @@ class NetMusic(Music):
             self._local_music.set_length(self._length)
 
     def __get_local_music_path(self):
-        return "./music/" + self._singer + "/" + self._name + ".mp3"
+        return "%s/download/music/%s/%s.mp3" % (MiscUtils.root_path(), self._singer, self._name)
 
     def __get_local_pic_path(self):
-        return "./pic/" + self._singer + "/" + self._name + ".jpg"
+        return "%s/download/pic/%s/%s.jpg" % (MiscUtils.root_path(), self._singer, self._name)
 
     def __get_local_lrc_path(self):
-        return "./lrc/" + self._singer + "/" + self._name + ".lrc"
+        return "%s/download/lrc/%s/%s.lrc" % (MiscUtils.root_path(), self._singer, self._name)
