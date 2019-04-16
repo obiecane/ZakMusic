@@ -92,3 +92,9 @@ class DBUtils:
         value = cursor.fetchone()
         cursor.close()
         return value
+
+    @staticmethod
+    def clear_up():
+        conn = DBUtils.get_connect()
+        conn.commit()
+        conn.close()
