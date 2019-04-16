@@ -45,6 +45,7 @@ class NetMusic(Music):
                 self._uri = data["url"]
                 self._pic = data["pic"]
                 self._lrc = data["lrc"]
+                self._length = data["time"]
                 ReqUtils.download(self._uri, self.__get_local_music_path(), True)
                 ReqUtils.download(self._lrc, self.__get_local_lrc_path(), True)
                 self.__pic_path = ReqUtils.download(self._pic, self.__get_local_pic_path(), True)
