@@ -39,7 +39,7 @@ class Music(QObject):
     def set_pic(self, pic):
         pass
 
-    def set_length(self, length):
+    def set_length(self, length: int):
         pass
 
     def set_lrc(self, lrc):
@@ -53,3 +53,13 @@ class Music(QObject):
 
     def __str__(self):
         return "%s %s %s %d" % (self.get_id(), self.get_name(), self.get_singer(), self.get_length())
+
+    def __hash__(self):
+        return hash("name:%s|singer:%s" % (self.get_name(), self.get_singer()))
+
+    def __eq__(self, other):
+        if not isinstance(other, Music):
+            return False
+        if self.get_name() == other.get_name() and self.get_singer() == other.get_singer():
+            return True
+        return False
