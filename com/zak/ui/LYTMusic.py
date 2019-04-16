@@ -369,7 +369,6 @@ class Ui_MainWindow(QObject):
     # 快进，快退
     def __music_control(self):
         value = self.music_progress.value()
-        print(value)
         self._player.set_pos(value)
         self.curr_music_time.setText(TimeUtils.second2minute(value / 1000))
         pass
