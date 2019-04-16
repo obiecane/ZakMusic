@@ -7,13 +7,16 @@ import time
 
 import pygame
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 from mutagen.mp3 import MP3
 
 import com.zak.ui.LYTMusic as lyt_music
+from com.zak.dao.MusicDao import MusicDao
+from com.zak.ui.MyQMainWindow import MyQMainWindow
 from com.zak.utils.Converter import Converter
 from com.zak.utils.DBUtils import DBUtils
 from com.zak.utils.MusicUtils import MusicUtils
+from com.zak.utils.QssUtils import QssUtils
 
 log_file_name = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
@@ -46,7 +49,7 @@ def test1():
 
 def test3():
     app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
+    MainWindow = MyQMainWindow()
     ui = lyt_music.Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
@@ -88,109 +91,25 @@ def __create_database():
     sql = "create table login (id varchar(20) primary key, name varchar(30), password varchar(30))"
 
 
+def test_pygame_event():
+    pygame.mixer.music.load("./music/李宗盛/问.mp3")
+    pygame.mixer.music.queue("./music/任然/空空如也 .mp3")
+    pygame.mixer.music.play()
+    pygame.mixer.music.set_endevent(8)
+
+    while True:
+        busy = pygame.mixer.music.get_busy()
+        endevent = pygame.mixer.music.get_endevent()
+        if busy == 1 and endevent == 0:
+            continue
+        print(busy)
+        print(endevent)
+        print("-----------------------------")
+        time.sleep(1)
+
+
 if __name__ == "__main__":
     DBUtils.init_tables()
     test3()
     # test_db()
-
-# QSlider::handle:horizontal { /*水平滑块的手柄*/
-#         image: url(:/image/sliderHandle.png);
-#  }
-#
-# QSlider::sub-page:horizontal { /*水平滑块手柄以前的部分*/
-#         border-image: url(:/image/slider.png);/*边框图片*/
-#  }
-
-# QSlider::groove: horizontal
-# {
-#     border: 1px solid  # 4A708B;
-#     background:  # C0C0C0;
-#         height: 5
-# px;
-# border - radius: 1
-# px;
-# padding - left: -1
-# px;
-# padding - right: -1
-# px;
-# }
-#
-# QSlider::sub - page: horizontal
-# {
-#     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-# stop: 0  # B1B1B1, stop:1 #c4c4c4);
-# background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-# stop: 0  # 5DCCFF, stop: 1 #1874CD);
-# border: 1
-# px
-# solid  # 4A708B;
-# height: 10
-# px;
-# border - radius: 2
-# px;
-# }
-#
-# QSlider::add - page: horizontal
-# {
-#     background:  # 575757;
-#         border: 0
-# px
-# solid  # 777;
-# height: 10
-# px;
-# border - radius: 2
-# px;
-# }
-#
-# QSlider::handle: horizontal
-# {
-#     background: qradialgradient(spread: pad, cx: 0.5, cy: 0.5, radius: 0.5, fx: 0.5, fy: 0.5,
-# stop: 0.6  # 45ADED, stop:0.778409 rgba(255, 255, 255, 255));
-#
-# width: 11
-# px;
-# margin - top: -3
-# px;
-# margin - bottom: -3
-# px;
-# border - radius: 5
-# px;
-# }
-#
-# QSlider::handle: horizontal:hover
-# {
-#     background: qradialgradient(spread: pad, cx: 0.5, cy: 0.5, radius: 0.5, fx: 0.5, fy: 0.5, stop: 0.6  # 2A8BDA,
-# stop: 0.778409
-# rgba(255, 255, 255, 255));
-#
-# width: 11
-# px;
-# margin - top: -3
-# px;
-# margin - bottom: -3
-# px;
-# border - radius: 5
-# px;
-# }
-#
-# QSlider::sub - page: horizontal:disabled
-# {
-#     background:  # 00009C;
-#         border - color:  # 999;
-# }
-#
-# QSlider::add - page: horizontal:disabled
-# {
-#     background:  # eee;
-#         border - color:  # 999;
-# }
-#
-# QSlider::handle: horizontal:disabled
-# {
-#     background:  # eee;
-#         border: 1
-# px
-# solid  # aaa;
-# border - radius: 4
-# px;
-# }
+    # test_pygame_event()
