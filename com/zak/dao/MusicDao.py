@@ -1,3 +1,5 @@
+import logging
+
 from com.zak.music.NetMusic import NetMusic
 from com.zak.utils.Converter import Converter
 from com.zak.utils.DBUtils import DBUtils
@@ -44,7 +46,7 @@ class MusicDao:
         try:
             cursor.execute(sql)
         except Exception as e:
-            print(e)
+            logging.debug(e)
         cursor.close()
         conn.commit()
 

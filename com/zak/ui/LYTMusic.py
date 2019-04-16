@@ -9,13 +9,15 @@ from com.zak.music.Music import Music
 from com.zak.music.Player import Player
 from com.zak.ui.MyQSlider import MyQSlider
 from com.zak.utils.Converter import Converter
+from com.zak.utils.ReqUtils import ReqUtils
+from com.zak.utils.TimeUtils import TimeUtils
+
+
 # Form implementation generated from reading ui file 'LYTMusic.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
-from com.zak.utils.ReqUtils import ReqUtils
-from com.zak.utils.TimeUtils import TimeUtils
 
 
 class Ui_MainWindow(QObject):
