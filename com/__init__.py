@@ -1,6 +1,7 @@
 import imghdr
 import json
 import logging
+import os
 import sqlite3
 import sys
 import time
@@ -15,13 +16,18 @@ from com.zak.dao.MusicDao import MusicDao
 from com.zak.ui.MyQMainWindow import MyQMainWindow
 from com.zak.utils.Converter import Converter
 from com.zak.utils.DBUtils import DBUtils
+from com.zak.utils.MiscUtils import MiscUtils
 from com.zak.utils.MusicUtils import MusicUtils
 from com.zak.utils.QssUtils import QssUtils
 
 log_file_name = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
 # 新增 fh，修改 basicConfig
-fh = logging.FileHandler(encoding='utf-8', mode='a', filename="./log/" + log_file_name + ".log")
+__dir_name = "%s/log/" % MiscUtils.root_path()
+if not os.path.exists(__dir_name):
+    os.makedirs(__dir_name)
+
+fh = logging.FileHandler(encoding='utf-8', mode='a', filename="%s/%s.log" % (__dir_name, log_file_name))
 # logging.basicConfig(handlers=[fh], format='[%(asctime)s %(levelname)s]<%(process)d> %(message)s',
 #                     datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
 
