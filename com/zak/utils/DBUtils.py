@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 
 
@@ -59,7 +60,7 @@ class DBUtils:
         try:
             conn.execute(DBUtils.__music_table_sql)
         except Exception as e:
-            print(e)
+            logging.debug(e)
             pass
         try:
             conn.execute(DBUtils.__setting_table_sql)
