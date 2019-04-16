@@ -16,7 +16,7 @@ class SettingDao:
         pass
 
     @staticmethod
-    def set_last_music(music_id: int):
+    def set_last_music(music_id):
         SettingDao.__update("last_music", music_id)
 
     @staticmethod
@@ -30,10 +30,7 @@ class SettingDao:
     @staticmethod
     def get_last_music():
         v = SettingDao.__get("last_music")
-        if v is None:
-            return 0
-        else:
-            return int(v)
+        return v
 
     @staticmethod
     def get_last_pos():
@@ -56,6 +53,9 @@ class SettingDao:
     @staticmethod
     def __update(name, value):
         conn = DBUtils.get_connect()
-        sql = "update setting set value = '%s' where name = '%s'" % (str(value), name)
+        if value is None:
+            sql = "update setting set value = null where name = '%s'" % name
+        else:
+            sql = "update setting set value = '%s' where name = '%s'" % (str(value), name)
         conn.execute(sql)
         conn.commit()
