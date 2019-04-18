@@ -5,7 +5,7 @@ import pygame
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import pyqtSignal, QObject
 
-from com.zak.music.LocalMusic import Music
+from com.zak.core.LocalMusic import Music
 
 pygame.mixer.init()
 
@@ -243,7 +243,5 @@ class Player(QObject):
         self._curr_music.signal_loading.connect(self.slot_loading)
         self._curr_music.signal_load_over.connect(self.slot_load_over)
 
-    # TODO 增加异步加载网络数据
-    # TODO 完善加载中动画
     # TODO 增加本地搜索
     # TODO 增加歌词显示
