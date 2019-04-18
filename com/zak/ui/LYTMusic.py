@@ -9,13 +9,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QMovie
 
+from com.zak.core.Music import Music
+from com.zak.core.Player import Player
+from com.zak.core.Searcher import Searcher
 from com.zak.dao.MusicDao import MusicDao
 from com.zak.dao.SettingDao import SettingDao
-from com.zak.music.Music import Music
-from com.zak.music.Player import Player
 from com.zak.ui.MyQSlider import MyQSlider
 from com.zak.utils.Converter import Converter
-from com.zak.utils.ReqUtils import ReqUtils
 from com.zak.utils.TimeUtils import TimeUtils
 
 
@@ -68,9 +68,10 @@ class Ui_MainWindow(object):
     def __init__(self):
         super().__init__()
         self._player = Player()
+        self._searcher = Searcher()
         self._music_timer = QTimer()
         self._music_timer.timeout.connect(self.__refresh_music_progress)  # 计时结束调用operate()方法
-        self._music_timer.start(800)  # 设置计时间隔并启动
+        self._music_timer.start(1000)  # 设置计时间隔并启动
 
 
     def setupUi(self, MainWindow):
@@ -286,6 +287,7 @@ class Ui_MainWindow(object):
         self.mc_prev.setSizePolicy(sizePolicy)
         self.mc_prev.setMinimumSize(QtCore.QSize(42, 42))
         self.mc_prev.setText("")
+        self.mc_prev.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mc_prev.setObjectName("mc_prev")
         self.horizontalLayout_2.addWidget(self.mc_prev)
         spacerItem10 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -299,6 +301,7 @@ class Ui_MainWindow(object):
         self.mc_play_pause.setMinimumSize(QtCore.QSize(50, 50))
         self.mc_play_pause.setAutoFillBackground(False)
         self.mc_play_pause.setText("")
+        self.mc_play_pause.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mc_play_pause.setObjectName("mc_play_pause")
         self.horizontalLayout_2.addWidget(self.mc_play_pause)
         spacerItem11 = QtWidgets.QSpacerItem(10, 5, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -314,6 +317,7 @@ class Ui_MainWindow(object):
         font.setFamily("Agency FB")
         font.setPointSize(9)
         self.mc_next.setFont(font)
+        self.mc_next.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mc_next.setText("")
         self.mc_next.setObjectName("mc_next")
         self.horizontalLayout_2.addWidget(self.mc_next)
@@ -341,21 +345,27 @@ class Ui_MainWindow(object):
         self.music_progress.sliderMoved.connect(self.__music_control)
         self._player.signal_music_unpause.connect(self.slot_music_unpause)
         self._player.signal_music_pause.connect(self.slot_music_pause)
+        self._searcher.signal_search_begin.connect(self.slot_net_search_begin)
+        self._searcher.signal_search_success.connect(self.slot_net_search_success)
+        self._searcher.signal_search_fail.connect(self.slot_net_search_fail)
 
         self.__paint_default_pic()
 
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
-        self.stackedWidget_2.setCurrentIndex(1)
-        self.stackedWidget_3.setCurrentIndex(1)
+        self.stackedWidget_2.setCurrentIndex(0)
+        self.stackedWidget_3.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.__init_local_list_widget()
         self.__init_setting()
 
     def retranslateUi(self, MainWindow):
+        self.__main_window = MainWindow
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+
+        MainWindow.setWindowTitle(_translate("MainWindow", "计... 计算器！？？Σ(っ °Д °;)っ"))
+        MainWindow.setWindowIcon(QtGui.QIcon("./res/dog-logo.jpg"))
         self.input_search.setPlaceholderText(_translate("MainWindow", "搜索歌曲"))
         # self.volume_label.setText(_translate("MainWindow", "音量"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "本地"))
@@ -367,11 +377,13 @@ class Ui_MainWindow(object):
         self.mc_next.setStyleSheet(Ui_MainWindow.__MC_NEXT_QSS)
         self.mc_prev.setStyleSheet(Ui_MainWindow.__MC_PREV_QSS)
         self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PLAY_QSS)
+        self.local_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
+        self.net_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
         movie = QMovie("./res/loding-2.gif")
         movie.setScaledSize(QtCore.QSize(300, 300))
         self.label.setMovie(movie)
         self.label_2.setMovie(movie)
-        movie.start()
+
 
     # 搜索
     def search(self):
@@ -385,11 +397,24 @@ class Ui_MainWindow(object):
     # 搜索网络资源
     def __do_net_search(self):
         self.net_list_widget.clear()
+        self.net_list_widget.scrollToTop()
         title = self.input_search.text().title()
-        # "我喜欢上你内心时的活动"
-        sr = ReqUtils.search_music(title)
-        for i, v in enumerate(sr, 1):
+        self._searcher.search_music(title)
+
+    def slot_net_search_begin(self):
+        self.label_2.movie().start()
+        self.stackedWidget_3.setCurrentIndex(1)
+
+    def slot_net_search_success(self, music_list: list):
+        for i, v in enumerate(music_list):
             Ui_MainWindow.__gen_list_item(self.net_list_widget, i, Converter.itooi_music(v))
+        self.stackedWidget_3.setCurrentIndex(0)
+        self.label_2.movie().stop()
+
+    def slot_net_search_fail(self):
+        self.stackedWidget_3.setCurrentIndex(0)
+        QtWidgets.QMessageBox.information(self.__main_window, 'zak music', '╮（╯＿╰）╭\n搜索失败', QtWidgets.QMessageBox.Yes,
+                                          QtWidgets.QMessageBox.Yes)
 
     # 网络歌曲双击
     def net_list_widget_double_click(self, index_):
@@ -429,6 +454,13 @@ class Ui_MainWindow(object):
                 return
         index = self._player.get_music_list().index(music)
         Ui_MainWindow.__gen_list_item(self.local_list_widget, index, music)
+        # 更新之后index之后的序号
+        count = self.local_list_widget.count()
+        for i in range(index + 1, count):
+            item = self.local_list_widget.item(i)
+            widget = self.local_list_widget.itemWidget(item)
+            id_label = widget.findChild(QtWidgets.QLabel, "id_label")
+            id_label.setText(str(i + 1))
 
     def refresh_volume(self):
         value = self.volume_slider.value()
@@ -459,7 +491,7 @@ class Ui_MainWindow(object):
 
     def __init_local_list_widget(self):
         all_ = MusicDao.get_all()
-        for i, v in enumerate(all_, 1):
+        for i, v in enumerate(all_):
             Ui_MainWindow.__gen_list_item(self.local_list_widget, i, v)
         self._player.add_music_list(all_)
 
@@ -515,13 +547,14 @@ class Ui_MainWindow(object):
 
         # 主要控件
         id_label = QtWidgets.QLabel(widget)
+        id_label.setObjectName("id_label")
         song_name_label = QtWidgets.QLabel(mainArea)
         singer_label = QtWidgets.QLabel(mainArea)
 
         # 设置不同控件的样式
         id_label.setFixedSize(30, 30)
         # id_label.setStyleSheet("background:red;border-radius:15px;color:black")
-        id_label.setText(str(index))
+        id_label.setText(str(index + 1))
         id_label.setAlignment(QtCore.Qt.AlignCenter)
 
         tempFont = QtGui.QFont("宋体", 12, 0)
@@ -553,6 +586,6 @@ class Ui_MainWindow(object):
         # list_widget.addItem(item)
         list_widget.insertItem(index, item)
         widget.setSizeIncrement(size.width(), 56)
-        # widget.zak_music = music
+        # widget.zak_music = core
         item.zak_music = music
         list_widget.setItemWidget(item, widget)
