@@ -4,6 +4,7 @@ import logging
 import os
 
 import requests
+from requests.adapters import HTTPAdapter
 
 
 class ReqUtils:
@@ -31,7 +32,7 @@ class ReqUtils:
 
     # 整合qq和网易云的搜索结果
     @staticmethod
-    def search_music(music_tag, exact=False):
+    def search_music(music_tag, exact=False) -> list:
         logging.debug("搜索 %s" % music_tag)
         netease_result = ReqUtils.netease_search_music(music_tag, exact)
         tencent_result = ReqUtils.tencent_search_music(music_tag, exact)
@@ -57,21 +58,6 @@ class ReqUtils:
             if str_t is not None and str_t not in tmp:
                 new_result.append(tencent_result[i])
                 tmp.add(str_t)
-
-        # tmp_ = set()
-        # new_result_ = list()
-        # for v in netease_result:
-        #     tmp_.add("name:%s|singer:%s" % (v["name"], v["singer"]))
-        #     new_result_.append(v)
-        #
-        # for v in tencent_result:
-        #     str_ = "name:%s|singer:%s" % (v["name"], v["singer"])
-        #     if str_ not in tmp_:
-        #         new_result_.append(v)
-        #
-        # # TODO 去重
-        # print(len(new_result))
-        # print(len(new_result_))
         return new_result
 
     @staticmethod
@@ -89,7 +75,13 @@ class ReqUtils:
         if exact:
             url += "&type=song"
         logging.debug("搜索 url:%s" % url)
-        get_result = requests.get(url)
+        s = requests.Session()
+        # 设置重试次数
+        s.mount('http://', HTTPAdapter(max_retries=3))
+        s.mount('https://', HTTPAdapter(max_retries=3))
+        # 设置超时时长15秒
+        get_result = s.get(url, timeout=15000)
+        # get_result = requests.get(url)
         json_result = json.loads(get_result.content.decode())
         logging.debug("搜索结果: %s" % json_result)
         if json_result["code"] == 200:
