@@ -1,7 +1,7 @@
 import logging
 
-from com.zak.music.LocalMusic import LocalMusic
-from com.zak.music.NetMusic import NetMusic
+from com.zak.core.LocalMusic import LocalMusic
+from com.zak.core.NetMusic import NetMusic
 
 
 # 转换器, 其他格式的数据转换成Music对象
