@@ -423,6 +423,7 @@ class Ui_MainWindow(object):
         item = self.net_list_widget.item(index_.row())
         music = item.zak_music
         music.signal_load_over.connect(self.__music_download_over)
+        music.signal_load_fail.connect(self.__music_download_fail)
         self.music_progress.setEnabled(False)
         self.music_progress.setValue(0)
         self.curr_music_time.setText(TimeUtils.second2minute(0))
@@ -487,6 +488,11 @@ class Ui_MainWindow(object):
 
     def __music_download_over(self, music):
         MusicDao.save(music)
+        pass
+
+    # 歌曲加载失败
+    def __music_download_fail(self):
+        self._player.play_next()
         pass
 
     def __init_local_list_widget(self):

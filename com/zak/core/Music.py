@@ -5,6 +5,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 class Music(QObject):
     signal_loading = pyqtSignal()
     signal_load_over = pyqtSignal(QObject)
+    signal_load_fail = pyqtSignal()
 
     def __init__(self):
         super().__init__()
