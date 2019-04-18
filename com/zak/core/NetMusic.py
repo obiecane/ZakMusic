@@ -1,8 +1,8 @@
 import os
 import threading
 
-from com.zak.music.LocalMusic import LocalMusic
-from com.zak.music.Music import Music
+from com.zak.core.LocalMusic import LocalMusic
+from com.zak.core.Music import Music
 from com.zak.utils.MiscUtils import MiscUtils
 from com.zak.utils.ReqUtils import ReqUtils
 
