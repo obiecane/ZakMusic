@@ -3,10 +3,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QTimer
 from PyQt5.QtGui import QMovie
 
+from com.zak.core.Music import Music
+from com.zak.core.Player import Player
 from com.zak.dao.MusicDao import MusicDao
 from com.zak.dao.SettingDao import SettingDao
-from com.zak.music.Music import Music
-from com.zak.music.Player import Player
 from com.zak.ui.MyQSlider import MyQSlider
 from com.zak.utils.Converter import Converter
 from com.zak.utils.ReqUtils import ReqUtils
@@ -454,7 +454,7 @@ class Ui_MainWindow(QObject):
         # list_widget.addItem(item)
         list_widget.insertItem(index, item)
         widget.setSizeIncrement(size.width(), 56)
-        # widget.zak_music = music
+        # widget.zak_music = core
         item.zak_music = music
         list_widget.setItemWidget(item, widget)
 
