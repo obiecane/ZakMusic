@@ -1,4 +1,4 @@
-from com.zak.music.Music import Music
+from com.zak.core.Music import Music
 
 
 class LocalMusic(Music):
