@@ -12,7 +12,7 @@ class Music(QObject):
     def get_uri(self) -> str:
         pass
 
-    def get_length(self):
+    def get_length(self) -> int:
         pass
 
     def get_id(self):
