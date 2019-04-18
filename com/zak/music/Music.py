@@ -9,7 +9,7 @@ class Music(QObject):
     def __init__(self):
         super().__init__()
 
-    def get_uri(self):
+    def get_uri(self) -> str:
         pass
 
     def get_length(self):
@@ -39,7 +39,7 @@ class Music(QObject):
     def set_pic(self, pic):
         pass
 
-    def set_length(self, length: int):
+    def set_length(self, length: int) -> int:
         pass
 
     def set_lrc(self, lrc):
