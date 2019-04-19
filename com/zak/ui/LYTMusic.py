@@ -447,6 +447,7 @@ class Ui_MainWindow(object):
     def slot_music_start_play(self, music):
         self.__show_music(music)
         self.music_progress.setEnabled(True)
+        self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PAUSE_QSS)
         # 刷新本地列表
         count = self.local_list_widget.count()
         for i in range(count):
