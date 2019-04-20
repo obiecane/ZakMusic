@@ -1,61 +1,79 @@
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QObject, QTimer
-from PyQt5.QtGui import QMovie
-
-from com.zak.core.Music import Music
-from com.zak.core.Player import Player
-from com.zak.dao.MusicDao import MusicDao
-from com.zak.dao.SettingDao import SettingDao
-from com.zak.ui.MyQSlider import MyQSlider
-from com.zak.utils.Converter import Converter
-from com.zak.utils.ReqUtils import ReqUtils
-from com.zak.utils.TimeUtils import TimeUtils
-
 
 # Form implementation generated from reading ui file 'LYTMusic.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QMovie
+
+from com.zak.core.Music import Music
+from com.zak.core.Player import Player
+from com.zak.core.Searcher import Searcher
+from com.zak.dao.MusicDao import MusicDao
+from com.zak.dao.SettingDao import SettingDao
+from com.zak.ui.MyPicLabel import MyPicLabel
+from com.zak.ui.MyQSlider import MyQSlider
+from com.zak.utils.Converter import Converter
+from com.zak.utils.TimeUtils import TimeUtils
 
 
-class Ui_MainWindow(QObject):
+class Ui_MainWindow(object):
     __QSlider_Qss = "  \
-             QSlider::add-page:Horizontal\
-             {     \
-                background-color: rgb(87, 97, 106);\
-                height:4px;\
-             }\
-             QSlider::sub-page:Horizontal \
-            {\
-                background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(231,80,229, 255), stop:1 rgba(7,208,255, 255));\
-                height:4px;\
-             }\
-            QSlider::groove:Horizontal \
-            {\
-                background:transparent;\
-                height:6px;\
-            }\
-            QSlider::handle:Horizontal \
-            {\
-                height: 0px;\
-                width:12px;\
-                border-image: url(./res/ic_slider_thumb.png);\
-                margin: -3 0px; \
-            }\
-            "
+                 QSlider::add-page:Horizontal\
+                 {     \
+                    background-color: rgb(87, 97, 106);\
+                    height:4px;\
+                 }\
+                 QSlider::sub-page:Horizontal \
+                {\
+                    background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(231,80,229, 255), stop:1 rgba(7,208,255, 255));\
+                    height:4px;\
+                 }\
+                QSlider::groove:Horizontal \
+                {\
+                    background:transparent;\
+                    height:6px;\
+                }\
+                QSlider::handle:Horizontal \
+                {\
+                    height: 0px;\
+                    width:12px;\
+                    border-image: url(./res/ic_slider_thumb.png);\
+                    margin: -3 0px; \
+                }\
+                "
 
     __QListWidget_Qss = "QListWidget{border:0px solid black;}"
 
     __QListWidget_Item_Qss = "QListWidgetItem{border-bottom: 1px solid gray;}"
 
+    __MC_NEXT_QSS = "QPushButton{border-image: url(./res/mc/next.png);} \
+            QPushButton:hover{border-image: url(./res/mc/next-1.png);} \
+            QPushButton:pressed{border-image: url(./res/mc/next-1.png);}"
+
+    __MC_PLAY_QSS = "QPushButton{border-image: url(./res/mc/play.png);} \
+                QPushButton:hover{border-image: url(./res/mc/play-1.png);} \
+                QPushButton:pressed{border-image: url(./res/mc/play-1.png);}"
+
+    __MC_PAUSE_QSS = "QPushButton{border-image: url(./res/mc/pause.png);} \
+                    QPushButton:hover{border-image: url(./res/mc/pause-1.png);} \
+                    QPushButton:pressed{border-image: url(./res/mc/pause-1.png);}"
+
+    __MC_PREV_QSS = "QPushButton{border-image: url(./res/mc/prev.png);} \
+                QPushButton:hover{border-image: url(./res/mc/prev-1.png);} \
+                QPushButton:pressed{border-image: url(./res/mc/prev-1.png);}"
+
     def __init__(self):
         super().__init__()
         self._player = Player()
+        self._searcher = Searcher()
         self._music_timer = QTimer()
         self._music_timer.timeout.connect(self.__refresh_music_progress)  # 计时结束调用operate()方法
-        self._music_timer.start(800)  # 设置计时间隔并启动
+        self._music_timer.start(1000)  # 设置计时间隔并启动
+
 
     def setupUi(self, MainWindow):
         MainWindow.player = self._player
@@ -73,7 +91,7 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.input_search = QtWidgets.QLineEdit(self.centralwidget)
         font = QtGui.QFont()
-        font.setFamily("Agency FB")
+        font.setFamily("宋体")
         font.setPointSize(14)
         self.input_search.setFont(font)
         self.input_search.setInputMask("")
@@ -83,6 +101,9 @@ class Ui_MainWindow(QObject):
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.volume_label = QtWidgets.QLabel(self.centralwidget)
+        self.volume_label.setMinimumSize(QtCore.QSize(5, 5))
+        q_pixmap = QtGui.QPixmap("./res/voice/voice3.png").scaled(QtCore.QSize(20, 20), QtCore.Qt.KeepAspectRatio)
+        self.volume_label.setPixmap(q_pixmap)
         self.volume_label.setObjectName("volume_label")
         self.horizontalLayout_4.addWidget(self.volume_label)
         self.volume_slider = MyQSlider(self.centralwidget)
@@ -112,6 +133,7 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.stackedWidget_2 = QtWidgets.QStackedWidget(self.tab)
+        self.stackedWidget_2.setMinimumSize(QtCore.QSize(0, 0))
         self.stackedWidget_2.setObjectName("stackedWidget_2")
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setObjectName("page_3")
@@ -119,12 +141,35 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.local_list_widget = QtWidgets.QListWidget(self.page_3)
-        self.local_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
         self.local_list_widget.setObjectName("local_list_widget")
         self.verticalLayout_6.addWidget(self.local_list_widget)
         self.stackedWidget_2.addWidget(self.page_3)
         self.page_4 = QtWidgets.QWidget()
         self.page_4.setObjectName("page_4")
+        self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.page_4)
+        self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        spacerItem = QtWidgets.QSpacerItem(20, 115, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_8.addItem(spacerItem)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem1)
+        self.label = QtWidgets.QLabel(self.page_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        self.label.setMinimumSize(QtCore.QSize(300, 300))
+        self.label.setText("")
+        self.label.setObjectName("label")
+        self.horizontalLayout_5.addWidget(self.label)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem2)
+        self.verticalLayout_8.addLayout(self.horizontalLayout_5)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 114, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_8.addItem(spacerItem3)
         self.stackedWidget_2.addWidget(self.page_4)
         self.verticalLayout_5.addWidget(self.stackedWidget_2)
         self.tabWidget.addTab(self.tab, "")
@@ -141,24 +186,56 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.net_list_widget = QtWidgets.QListWidget(self.page_5)
-        self.net_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
         self.net_list_widget.setObjectName("net_list_widget")
         self.verticalLayout_7.addWidget(self.net_list_widget)
         self.stackedWidget_3.addWidget(self.page_5)
         self.page_6 = QtWidgets.QWidget()
         self.page_6.setObjectName("page_6")
+        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.page_6)
+        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        spacerItem4 = QtWidgets.QSpacerItem(20, 115, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_9.addItem(spacerItem4)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem5)
+        self.label_2 = QtWidgets.QLabel(self.page_6)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy)
+        self.label_2.setMinimumSize(QtCore.QSize(300, 300))
+        self.label_2.setText("")
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_6.addWidget(self.label_2)
+        spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem6)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_6)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 114, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_9.addItem(spacerItem7)
         self.stackedWidget_3.addWidget(self.page_6)
         self.verticalLayout_4.addWidget(self.stackedWidget_3)
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout_3.addWidget(self.tabWidget)
         self.stackedWidget.addWidget(self.page)
-        self.page_2 = QtWidgets.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stackedWidget.addWidget(self.page_2)
+        self.lrc_page = QtWidgets.QWidget()
+        self.lrc_page.setObjectName("lrc_page")
+        self.lrc_verticalLayout = QtWidgets.QVBoxLayout(self.lrc_page)
+        self.lrc_verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.lrc_verticalLayout.setObjectName("lrc_verticalLayout")
+        lrc_page_spacerItem = QtWidgets.QSpacerItem(20, 115, QtWidgets.QSizePolicy.Minimum,
+                                                    QtWidgets.QSizePolicy.Expanding)
+        self.lrc_verticalLayout.addItem(lrc_page_spacerItem)
+        lrc_text_edit = QtWidgets.QTextEdit()
+        self.lrc_verticalLayout.addWidget(lrc_text_edit)
+
+        self.stackedWidget.addWidget(self.lrc_page)
         self.verticalLayout_2.addWidget(self.stackedWidget)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.pic_label = QtWidgets.QLabel(self.centralwidget)
+        self.pic_label = MyPicLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -170,8 +247,8 @@ class Ui_MainWindow(QObject):
         self.pic_label.setText("")
         self.pic_label.setObjectName("pic_label")
         self.horizontalLayout.addWidget(self.pic_label)
-        spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        spacerItem8 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem8)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.song_label = QtWidgets.QLabel(self.centralwidget)
@@ -210,25 +287,55 @@ class Ui_MainWindow(QObject):
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem9)
         self.mc_prev = QtWidgets.QPushButton(self.centralwidget)
-        self.mc_prev.setMinimumSize(QtCore.QSize(0, 38))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mc_prev.sizePolicy().hasHeightForWidth())
+        self.mc_prev.setSizePolicy(sizePolicy)
+        self.mc_prev.setMinimumSize(QtCore.QSize(42, 42))
+        self.mc_prev.setText("")
+        self.mc_prev.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mc_prev.setObjectName("mc_prev")
         self.horizontalLayout_2.addWidget(self.mc_prev)
+        spacerItem10 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem10)
         self.mc_play_pause = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mc_play_pause.sizePolicy().hasHeightForWidth())
+        self.mc_play_pause.setSizePolicy(sizePolicy)
         self.mc_play_pause.setMinimumSize(QtCore.QSize(50, 50))
+        self.mc_play_pause.setAutoFillBackground(False)
+        self.mc_play_pause.setText("")
+        self.mc_play_pause.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mc_play_pause.setObjectName("mc_play_pause")
         self.horizontalLayout_2.addWidget(self.mc_play_pause)
+        spacerItem11 = QtWidgets.QSpacerItem(10, 5, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem11)
         self.mc_next = QtWidgets.QPushButton(self.centralwidget)
-        self.mc_next.setMinimumSize(QtCore.QSize(0, 38))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mc_next.sizePolicy().hasHeightForWidth())
+        self.mc_next.setSizePolicy(sizePolicy)
+        self.mc_next.setMinimumSize(QtCore.QSize(42, 42))
         font = QtGui.QFont()
         font.setFamily("Agency FB")
         font.setPointSize(9)
         self.mc_next.setFont(font)
+        self.mc_next.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.mc_next.setText("")
         self.mc_next.setObjectName("mc_next")
         self.horizontalLayout_2.addWidget(self.mc_next)
-        self.horizontalLayout_2.setStretch(0, 3)
-        self.horizontalLayout_2.setStretch(1, 4)
-        self.horizontalLayout_2.setStretch(2, 3)
+        spacerItem12 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem12)
+        self.horizontalLayout_2.setStretch(1, 3)
+        self.horizontalLayout_2.setStretch(3, 4)
+        self.horizontalLayout_2.setStretch(5, 3)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -248,31 +355,45 @@ class Ui_MainWindow(QObject):
         self.music_progress.sliderMoved.connect(self.__music_control)
         self._player.signal_music_unpause.connect(self.slot_music_unpause)
         self._player.signal_music_pause.connect(self.slot_music_pause)
-
+        self._searcher.signal_search_begin.connect(self.slot_net_search_begin)
+        self._searcher.signal_search_success.connect(self.slot_net_search_success)
+        self._searcher.signal_search_fail.connect(self.slot_net_search_fail)
+        self.pic_label.clicked.connect(self.pic_clicked)
         self.__paint_default_pic()
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
+        self.stackedWidget_2.setCurrentIndex(0)
+        self.stackedWidget_3.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.__init_local_list_widget()
         self.__init_setting()
 
     def retranslateUi(self, MainWindow):
+        self.__main_window = MainWindow
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+
+        MainWindow.setWindowTitle(_translate("MainWindow", "计... 计算器！？？Σ(っ °Д °;)っ"))
+        MainWindow.setWindowIcon(QtGui.QIcon("./res/dog-logo.jpg"))
         self.input_search.setPlaceholderText(_translate("MainWindow", "搜索歌曲"))
-        self.volume_label.setText(_translate("MainWindow", "音量"))
+        # self.volume_label.setText(_translate("MainWindow", "音量"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "本地"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "网络"))
         self.song_label.setText(_translate("MainWindow", "歌名"))
         self.singer_label.setText(_translate("MainWindow", "歌手"))
         self.curr_music_time.setText(_translate("MainWindow", "00:00"))
         self.full_music_time.setText(_translate("MainWindow", "00:00"))
-        self.mc_prev.setText(_translate("MainWindow", "上一曲"))
-        # self.mc_play_pause.setText(_translate("MainWindow", "播放"))
-        self.mc_next.setText(_translate("MainWindow", "下一曲"))
-        self.mc_play_pause.setStyleSheet("background-image: url(./res/play.png);")
+        self.mc_next.setStyleSheet(Ui_MainWindow.__MC_NEXT_QSS)
+        self.mc_prev.setStyleSheet(Ui_MainWindow.__MC_PREV_QSS)
+        self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PLAY_QSS)
+        self.local_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
+        self.net_list_widget.setStyleSheet(Ui_MainWindow.__QListWidget_Qss)
+        movie = QMovie("./res/loding-2.gif")
+        movie.setScaledSize(QtCore.QSize(300, 300))
+        self.label.setMovie(movie)
+        self.label_2.setMovie(movie)
+
 
     # 搜索
     def search(self):
@@ -286,11 +407,24 @@ class Ui_MainWindow(QObject):
     # 搜索网络资源
     def __do_net_search(self):
         self.net_list_widget.clear()
+        self.net_list_widget.scrollToTop()
         title = self.input_search.text().title()
-        # "我喜欢上你内心时的活动"
-        sr = ReqUtils.search_music(title)
-        for i, v in enumerate(sr, 1):
+        self._searcher.search_music(title)
+
+    def slot_net_search_begin(self):
+        self.label_2.movie().start()
+        self.stackedWidget_3.setCurrentIndex(1)
+
+    def slot_net_search_success(self, music_list: list):
+        for i, v in enumerate(music_list):
             Ui_MainWindow.__gen_list_item(self.net_list_widget, i, Converter.itooi_music(v))
+        self.stackedWidget_3.setCurrentIndex(0)
+        self.label_2.movie().stop()
+
+    def slot_net_search_fail(self):
+        self.stackedWidget_3.setCurrentIndex(0)
+        QtWidgets.QMessageBox.information(self.__main_window, 'zak music', '╮（╯＿╰）╭\n搜索失败', QtWidgets.QMessageBox.Yes,
+                                          QtWidgets.QMessageBox.Yes)
 
     # 网络歌曲双击
     def net_list_widget_double_click(self, index_):
@@ -299,6 +433,7 @@ class Ui_MainWindow(QObject):
         item = self.net_list_widget.item(index_.row())
         music = item.zak_music
         music.signal_load_over.connect(self.__music_download_over)
+        music.signal_load_fail.connect(self.__music_download_fail)
         self.music_progress.setEnabled(False)
         self.music_progress.setValue(0)
         self.curr_music_time.setText(TimeUtils.second2minute(0))
@@ -318,10 +453,17 @@ class Ui_MainWindow(QObject):
         self._player.play(music)
         pass
 
+    def pic_clicked(self):
+        i = self.stackedWidget.currentIndex()
+        i = 1 if i == 0 else 0
+        self.stackedWidget.setCurrentIndex(i)
+        pass
+
     # 音乐开始播放了响应方法
     def slot_music_start_play(self, music):
         self.__show_music(music)
         self.music_progress.setEnabled(True)
+        self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PAUSE_QSS)
         # 刷新本地列表
         count = self.local_list_widget.count()
         for i in range(count):
@@ -330,6 +472,13 @@ class Ui_MainWindow(QObject):
                 return
         index = self._player.get_music_list().index(music)
         Ui_MainWindow.__gen_list_item(self.local_list_widget, index, music)
+        # 更新之后index之后的序号
+        count = self.local_list_widget.count()
+        for i in range(index + 1, count):
+            item = self.local_list_widget.item(i)
+            widget = self.local_list_widget.itemWidget(item)
+            id_label = widget.findChild(QtWidgets.QLabel, "id_label")
+            id_label.setText(str(i + 1))
 
     def refresh_volume(self):
         value = self.volume_slider.value()
@@ -358,9 +507,14 @@ class Ui_MainWindow(QObject):
         MusicDao.save(music)
         pass
 
+    # 歌曲加载失败
+    def __music_download_fail(self):
+        self._player.play_next()
+        pass
+
     def __init_local_list_widget(self):
         all_ = MusicDao.get_all()
-        for i, v in enumerate(all_, 1):
+        for i, v in enumerate(all_):
             Ui_MainWindow.__gen_list_item(self.local_list_widget, i, v)
         self._player.add_music_list(all_)
 
@@ -400,10 +554,10 @@ class Ui_MainWindow(QObject):
         pass
 
     def slot_music_pause(self):
-        self.mc_play_pause.setText("继续")
+        self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PLAY_QSS)
 
     def slot_music_unpause(self):
-        self.mc_play_pause.setText("暂停")
+        self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PAUSE_QSS)
 
     @staticmethod
     def __gen_list_item(list_widget: QtWidgets.QListWidget, index: int, music: Music):
@@ -416,13 +570,14 @@ class Ui_MainWindow(QObject):
 
         # 主要控件
         id_label = QtWidgets.QLabel(widget)
+        id_label.setObjectName("id_label")
         song_name_label = QtWidgets.QLabel(mainArea)
         singer_label = QtWidgets.QLabel(mainArea)
 
         # 设置不同控件的样式
         id_label.setFixedSize(30, 30)
         # id_label.setStyleSheet("background:red;border-radius:15px;color:black")
-        id_label.setText(str(index))
+        id_label.setText(str(index + 1))
         id_label.setAlignment(QtCore.Qt.AlignCenter)
 
         tempFont = QtGui.QFont("宋体", 12, 0)
@@ -457,4 +612,3 @@ class Ui_MainWindow(QObject):
         # widget.zak_music = core
         item.zak_music = music
         list_widget.setItemWidget(item, widget)
-
