@@ -429,6 +429,7 @@ class Ui_MainWindow(object):
 
     def slot_net_search_fail(self):
         self.stackedWidget_3.setCurrentIndex(0)
+        self.label_2.movie().stop()
         QtWidgets.QMessageBox.information(self.__main_window, 'zak music', '╮（╯＿╰）╭\n搜索失败', QtWidgets.QMessageBox.Yes,
                                           QtWidgets.QMessageBox.Yes)
 
