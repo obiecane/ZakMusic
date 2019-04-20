@@ -14,8 +14,10 @@ from com.zak.core.Player import Player
 from com.zak.core.Searcher import Searcher
 from com.zak.dao.MusicDao import MusicDao
 from com.zak.dao.SettingDao import SettingDao
+from com.zak.ui.MyPicLabel import MyPicLabel
 from com.zak.ui.MyQSlider import MyQSlider
 from com.zak.utils.Converter import Converter
+from com.zak.utils.LrcUtils import LrcUtils
 from com.zak.utils.TimeUtils import TimeUtils
 
 
@@ -75,6 +77,7 @@ class Ui_MainWindow(object):
 
 
     def setupUi(self, MainWindow):
+        MainWindow.ui = self
         MainWindow.player = self._player
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(380, 800)
@@ -121,7 +124,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.tabWidget = QtWidgets.QTabWidget(self.page)
-        self.tabWidget.setStyleSheet("QTabBar::tab{width:180px;}")
+        self.tabWidget.setMinimumWidth(362)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setElideMode(QtCore.Qt.ElideMiddle)
         self.tabWidget.setTabBarAutoHide(True)
@@ -219,13 +222,26 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout_3.addWidget(self.tabWidget)
         self.stackedWidget.addWidget(self.page)
-        self.page_2 = QtWidgets.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stackedWidget.addWidget(self.page_2)
+
+        self.lrc_page = QtWidgets.QWidget()
+        self.lrc_page.setObjectName("lrc_page")
+        self.lrc_verticalLayout = QtWidgets.QVBoxLayout(self.lrc_page)
+        self.lrc_verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.lrc_verticalLayout.setObjectName("lrc_verticalLayout")
+        self.lrc_browser = QtWidgets.QTextBrowser(self.lrc_page)
+        self.lrc_browser.setObjectName("textEdit")
+        self.lrc_verticalLayout.addWidget(self.lrc_browser)
+        self.lrc_browser.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.lrc_browser.setFont(font)
+
+        self.lrc_browser.setText("歌词显示。。。")
+        self.lrc_browser.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.stackedWidget.addWidget(self.lrc_page)
         self.verticalLayout_2.addWidget(self.stackedWidget)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.pic_label = QtWidgets.QLabel(self.centralwidget)
+        self.pic_label = MyPicLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -348,11 +364,11 @@ class Ui_MainWindow(object):
         self._searcher.signal_search_begin.connect(self.slot_net_search_begin)
         self._searcher.signal_search_success.connect(self.slot_net_search_success)
         self._searcher.signal_search_fail.connect(self.slot_net_search_fail)
-
+        self.pic_label.clicked.connect(self.pic_clicked)
         self.__paint_default_pic()
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
         self.stackedWidget_2.setCurrentIndex(0)
         self.stackedWidget_3.setCurrentIndex(0)
@@ -443,11 +459,19 @@ class Ui_MainWindow(object):
         self._player.play(music)
         pass
 
+    def pic_clicked(self):
+        i = self.stackedWidget.currentIndex()
+        i = 1 if i == 0 else 0
+        self.stackedWidget.setCurrentIndex(i)
+        pass
+
     # 音乐开始播放了响应方法
     def slot_music_start_play(self, music):
         self.__show_music(music)
         self.music_progress.setEnabled(True)
         self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PAUSE_QSS)
+        lrc = LrcUtils.read_lrc(music.get_lrc())
+        self.lrc_browser.setText(lrc)
         # 刷新本地列表
         count = self.local_list_widget.count()
         for i in range(count):
@@ -463,6 +487,7 @@ class Ui_MainWindow(object):
             widget = self.local_list_widget.itemWidget(item)
             id_label = widget.findChild(QtWidgets.QLabel, "id_label")
             id_label.setText(str(i + 1))
+
 
     def refresh_volume(self):
         value = self.volume_slider.value()
