@@ -35,3 +35,20 @@ class MyQMainWindow(QtWidgets.QMainWindow):
         #     event.accept()
         # else:
         #     event.ignore()
+
+    def showEvent(self, *args, **kwargs):
+        self.__re_tab_width()
+
+    def resizeEvent(self, *args, **kwargs):
+        self.__re_tab_width()
+
+    def __re_tab_width(self):
+        tabWidget = self.ui.tabWidget
+        self_width = self.width()
+        tabWidget_width = tabWidget.width()
+        if tabWidget_width > self_width:
+            tab_width = 180
+        else:
+            tab_count = tabWidget.count()
+            tab_width = int(tabWidget_width / tab_count - 1)
+        tabWidget.setStyleSheet("QTabBar::tab{width:%dpx;}" % tab_width)
