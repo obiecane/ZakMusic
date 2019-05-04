@@ -15,9 +15,9 @@ class MyQMainWindow(QtWidgets.QMainWindow):
         volume_slider = self.findChild(QtWidgets.QSlider, "volume_slider")
         SettingDao.set_volume(volume_slider.value())
         player = self.player
+        pos = player.get_pos()
         player.pause()
         music = player.curr_music()
-        pos = player.get_pos()
         if music is None:
             SettingDao.set_last_music(None)
             SettingDao.set_last_pos(0)
