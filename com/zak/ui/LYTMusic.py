@@ -86,7 +86,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(50)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(380, 800))
+        MainWindow.setMinimumSize(QtCore.QSize(380, 700))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
