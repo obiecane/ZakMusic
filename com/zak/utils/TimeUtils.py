@@ -1,7 +1,8 @@
 class TimeUtils:
 
+    # 把秒数转换为mm:ss格式的时间
     @staticmethod
-    def second2minute(second):
+    def second2minute(second: int):  # 定义方法
         second = int(second)
         if second <= 0:
             return "00:00"

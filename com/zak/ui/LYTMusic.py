@@ -22,6 +22,8 @@ from com.zak.utils.TimeUtils import TimeUtils
 
 
 class Ui_MainWindow(object):
+
+    # 滑块组件的颜色， 滑块的图片
     __QSlider_Qss = "  \
                  QSlider::add-page:Horizontal\
                  {     \
@@ -47,10 +49,12 @@ class Ui_MainWindow(object):
                 }\
                 "
 
+    # 去掉listWidget的边框
     __QListWidget_Qss = "QListWidget{border:0px solid black;}"
 
     __QListWidget_Item_Qss = "QListWidgetItem{border-bottom: 1px solid gray;}"
 
+    # 下一首按钮的样式
     __MC_NEXT_QSS = "QPushButton{border-image: url(./res/mc/next.png);} \
             QPushButton:hover{border-image: url(./res/mc/next-1.png);} \
             QPushButton:pressed{border-image: url(./res/mc/next-1.png);}"
@@ -380,7 +384,7 @@ class Ui_MainWindow(object):
         self.__main_window = MainWindow
         _translate = QtCore.QCoreApplication.translate
 
-        MainWindow.setWindowTitle(_translate("MainWindow", "计... 计算器！？？Σ(っ °Д °;)っ"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "叼炸天播放器！？？Σ(っ °Д °;)っ"))
         MainWindow.setWindowIcon(QtGui.QIcon("./res/dog-logo.jpg"))
         self.input_search.setPlaceholderText(_translate("MainWindow", "搜索歌曲"))
         # self.volume_label.setText(_translate("MainWindow", "音量"))
@@ -399,7 +403,6 @@ class Ui_MainWindow(object):
         movie.setScaledSize(QtCore.QSize(300, 300))
         self.label.setMovie(movie)
         self.label_2.setMovie(movie)
-
 
     # 搜索
     def search(self):
@@ -528,6 +531,7 @@ class Ui_MainWindow(object):
             Ui_MainWindow.__gen_list_item(self.local_list_widget, i, v)
         self._player.add_music_list(all_)
 
+    # 初始化播放器相关设置(音量， 最后播放的歌曲id， 最后播放歌曲的位置)
     def __init_setting(self):
         volume = SettingDao.get_volume()
         self._player.set_volume(volume)
@@ -569,6 +573,7 @@ class Ui_MainWindow(object):
     def slot_music_unpause(self):
         self.mc_play_pause.setStyleSheet(Ui_MainWindow.__MC_PAUSE_QSS)
 
+    # 通过歌曲创建列表项
     @staticmethod
     def __gen_list_item(list_widget: QtWidgets.QListWidget, index: int, music: Music):
         widget = QtWidgets.QWidget()

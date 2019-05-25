@@ -69,6 +69,7 @@ class ReqUtils:
     def tencent_search_music(music_tag, exact=False):
         return ReqUtils._search_music_by_name(music_tag, ReqUtils._TENCENT_BASE_SEARCH, exact)
 
+    # 通过关键字从给定的地址中搜索歌曲
     @staticmethod
     def _search_music_by_name(music_name, base_search, exact=False):
         url = base_search + "&s=" + music_name
@@ -90,12 +91,12 @@ class ReqUtils:
             return []
 
     @staticmethod
-    def download(url, filename, override=False):
-        if not isinstance(filename, str):
-            return
+    def download(url, filename: str, override=False):
         dir_name = os.path.dirname(filename)
+        # 如果目录不存在则创建
         if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
+            os.makedirs(dir_name)  # 创建目录
+
         if override or not os.path.exists(filename):
             logging.debug("开始下载[%s] [url:%s]" % (filename, url))
             result = requests.get(url)

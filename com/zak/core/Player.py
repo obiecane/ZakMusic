@@ -36,20 +36,18 @@ class Player(QObject):
     def __init__(self):
         super().__init__()
         # 播放列表
-        self.__music_list = []
-        self.__curr_index = -1
-        self.__set_pos = -1
-        self.__status = Player.STATUS_INIT
-        self._cond = threading.Condition
-        self._curr_music = None
-        self.__listen_end_timer = QTimer()
+        self.__music_list = []  # 播放列表
+        self.__curr_index = -1  # 当前播放的歌在播放列表中的位置
+        self.__set_pos = -1  # 当前歌曲播放位置
+        self.__status = Player.STATUS_INIT  # 播放器的状态
+        self._cond = threading.Condition  # 线程锁
+        self._curr_music = None  # 当前播放的音乐
+        self.__listen_end_timer = QTimer()  # 定时器
         self.__listen_end_timer.timeout.connect(self.__th_listen_end)  # 计时结束调用__th_listen_end方法
         self.__listen_end_timer.start(500)  # 设置计时间隔为500ms并启动
 
-
-    def play(self, music):
-        if not isinstance(music, Music):
-            return
+    # 播放给定的歌曲
+    def play(self, music: Music):
         if self._curr_music is not None:
             self.__disconnect_curr_music()
         self._curr_music = music
@@ -74,9 +72,8 @@ class Player(QObject):
             self.__status = Player.STATUS_PLAYING
             self.signal_start_play.emit(self._curr_music)
         except Exception as e:
-            # TODO 可能文件损坏 或者因为没有版权
-            # TODO 发送信号cant play
-            logging.info(e)
+            # 可能文件损坏 或者因为没有版权
+            logging.info(e)  # 记录日志
             pass
 
     def _do_load(self):
@@ -184,6 +181,7 @@ class Player(QObject):
             self.signal_music_over.emit(over_music)
             logging.debug("%s   播放完毕" % over_music.get_name())
 
+    # 设置播放列表
     def add_music_list(self, music_or_list):
         if isinstance(music_or_list, Music):
             self.__music_list.append(music_or_list)
@@ -203,6 +201,7 @@ class Player(QObject):
     #         self.__music_list.append(music)
     #         return self.__music_list.index(music)
 
+    # 获取播放列表
     def get_music_list(self):
         return self.__music_list
 
